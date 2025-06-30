@@ -1,0 +1,12 @@
+# The .dockerignore file excludes files from the container build process.
+#
+# https://docs.docker.com/engine/reference/builder/#dockerignore-file
+
+.dockerignore
+.gitignore
+.env
+tmp
+.DS_Store
+.vscode
+.idea
+*.log
