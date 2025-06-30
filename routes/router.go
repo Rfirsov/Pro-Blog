@@ -11,6 +11,7 @@ func NewRouter() *gin.Engine {
 	{
 		v1Group := router.Group("/api/v1")
 		v1Group.GET("/users", apiV1.UserHandler.GetUser)
+		v1Group.POST("/create-user", apiV1.UserHandler.CreateUser)
 	}
 
 	return router

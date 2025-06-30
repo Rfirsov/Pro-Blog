@@ -4,11 +4,13 @@ import (
 	"log"
 
 	"github.com/Rfirsov/Pro-Blog/config"
+	"github.com/Rfirsov/Pro-Blog/database"
 	"github.com/Rfirsov/Pro-Blog/routes"
 )
 
 func main() {
 	config.LoadConfig()
+	database.InitDB()
 
 	router := routes.NewRouter()
 	if config.Cfg.AppEnv == "development" {

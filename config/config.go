@@ -10,19 +10,41 @@ import (
 type Config struct {
 	AppEnv     string
 	ServerPort string
+	DBHost     string
+	DBPort     string
+	DBUser     string
+	DBPassword string
+	DBName     string
 }
 
 var Cfg Config
 
 func LoadConfig() {
-	// Load .env file if present
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using environment variables")
+	envFile := ".env.dev" // default
+
+	// Detect which .env file to load based on APP_ENV or fallback
+	appEnv := os.Getenv("APP_ENV")
+	switch appEnv {
+	case "development":
+		envFile = ".env.dev"
+	case "production":
+		envFile = ".env.prod"
 	}
 
+	// Load the env file, fallback if missing
+	if err := godotenv.Load(".env.dev"); err != nil {
+		log.Printf("No %s file found, using environment variables\n", envFile)
+	}
+
+	// Now load config values
 	Cfg = Config{
 		AppEnv:     getEnv("APP_ENV", "development"),
 		ServerPort: getEnv("PORT", "8080"),
+		DBHost:     getEnv("DB_HOST", "postgres"),
+		DBPort:     getEnv("DB_PORT", "5432"),
+		DBUser:     getEnv("DB_USER", "postgres"),
+		DBPassword: getEnv("DB_PASSWORD", ""),
+		DBName:     getEnv("DB_NAME", "pro_blog_db"),
 	}
 }
 
