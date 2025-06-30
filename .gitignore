@@ -1,0 +1,7 @@
+# IDE/editor
+.vscode/
+.idea/
+
+# Environment
+.env
+.env.*
