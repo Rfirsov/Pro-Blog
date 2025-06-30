@@ -1,15 +1,18 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"log"
+
+	"github.com/Rfirsov/Pro-Blog/routes"
 )
 
 func main() {
-	http.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Home Page")
-	})
 
-	fmt.Println("Server started on :8080")
-	http.ListenAndServe(":8080", nil)
+	router := routes.NewRouter()
+	router.SetTrustedProxies([]string{"127.0.0.1"})
+
+	// Start the HTTP server on port 8080
+	if err := router.Run(":8080"); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }
