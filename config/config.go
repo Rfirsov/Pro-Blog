@@ -15,6 +15,7 @@ type Config struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
+	DBSslMode  string
 }
 
 var Cfg Config
@@ -45,6 +46,7 @@ func LoadConfig() {
 		DBUser:     getEnv("DB_USER", "postgres"),
 		DBPassword: getEnv("DB_PASSWORD", ""),
 		DBName:     getEnv("DB_NAME", "pro_blog_db"),
+		DBSslMode:  getEnv("DB_SSLMODE", "disable"),
 	}
 }
 
