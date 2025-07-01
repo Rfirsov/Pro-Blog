@@ -31,6 +31,11 @@ func InitDB() {
 
 	log.Println("✅ Connected to PostgreSQL via GORM")
 
+	// Make sure uuid-ossp extension is enabled
+	if err := DB.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`).Error; err != nil {
+		log.Fatal("failed to create uuid-ossp extension:", err)
+	}
+
 	errAutoMigrate := DB.AutoMigrate(
 		&user.User{}, // Add more models here
 	)
