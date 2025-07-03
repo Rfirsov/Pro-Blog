@@ -3,8 +3,8 @@ package database
 import (
 	"fmt"
 	"log"
-	"os/user"
 
+	"github.com/Rfirsov/Pro-Blog/internal/user"
 	"github.com/Rfirsov/Pro-Blog/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
