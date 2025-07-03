@@ -1,10 +1,28 @@
-package repository
+package user
 
 import (
-	"github.com/Rfirsov/Pro-Blog/models"
-	"github.com/Rfirsov/Pro-Blog/database"
+	"gorm.io/gorm"
 )
 
-func CreateUser(u *user.User) error {
-	return database.DB.Create(u).Error
+type Repository interface {
+	CreateUser(user *User) error
+	GetByEmail(email string) (*User, error)
+}
+
+type repository struct {
+	db *gorm.DB
+}
+
+func NewRepository(db *gorm.DB) Repository {
+	return &repository{db}
+}
+
+func (r *repository) CreateUser(user *User) error {
+	return r.db.Create(user).Error
+}
+
+func (r *repository) GetByEmail(email string) (*User, error) {
+	var user User
+	err := r.db.Where("email = ?", email).First(&user).Error
+	return &user, err
 }
