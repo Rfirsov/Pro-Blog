@@ -13,11 +13,11 @@ func main() {
 	database.InitDB()
 
 	router := routes.NewRouter()
-	if config.Cfg.AppEnv == "development" {
+	if config.Cfg.Server.AppEnv == "development" {
 		router.SetTrustedProxies([]string{"127.0.0.1"})
 	}
 
-	if err := router.Run(":" + config.Cfg.ServerPort); err != nil {
+	if err := router.Run(":" + config.Cfg.Server.Port); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }

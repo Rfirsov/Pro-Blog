@@ -8,14 +8,19 @@ import (
 )
 
 type Config struct {
-	AppEnv     string
-	ServerPort string
-	DBHost     string
-	DBPort     string
-	DBUser     string
-	DBPassword string
-	DBName     string
-	DBSslMode  string
+	Server struct {
+		AppEnv string
+		Port   string
+	}
+
+	Database struct {
+		Host     string
+		Port     string
+		User     string
+		Password string
+		Name     string
+		SslMode  string
+	}
 }
 
 var Cfg Config
@@ -37,17 +42,17 @@ func LoadConfig() {
 		log.Printf("No %s file found, using environment variables\n", envFile)
 	}
 
-	// Now load config values
-	Cfg = Config{
-		AppEnv:     getEnv("APP_ENV", "development"),
-		ServerPort: getEnv("PORT", "8080"),
-		DBHost:     getEnv("DB_HOST", "postgres"),
-		DBPort:     getEnv("DB_PORT", "5432"),
-		DBUser:     getEnv("DB_USER", "postgres"),
-		DBPassword: getEnv("DB_PASSWORD", ""),
-		DBName:     getEnv("DB_NAME", "pro_blog_db"),
-		DBSslMode:  getEnv("DB_SSLMODE", "disable"),
-	}
+	// Server config
+	Cfg.Server.AppEnv = getEnv("APP_ENV", "development")
+	Cfg.Server.Port = getEnv("PORT", "8080")
+
+	// Database config
+	Cfg.Database.Host = getEnv("DB_HOST", "postgres")
+	Cfg.Database.Port = getEnv("DB_PORT", "5432")
+	Cfg.Database.User = getEnv("DB_USER", "postgres")
+	Cfg.Database.Password = getEnv("DB_PASSWORD", "")
+	Cfg.Database.Name = getEnv("DB_NAME", "pro_blog_db")
+	Cfg.Database.SslMode = getEnv("DB_SSLMODE", "disable")
 }
 
 func getEnv(key, fallback string) string {
