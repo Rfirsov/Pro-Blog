@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -20,6 +21,12 @@ type Config struct {
 		Password string
 		Name     string
 		SslMode  string
+	}
+
+	JWT struct {
+		Secret         string
+		TokenExpiry   time.Duration
+		RefreshExpiry time.Duration
 	}
 }
 
@@ -53,6 +60,11 @@ func LoadConfig() {
 	Cfg.Database.Password = getEnv("DB_PASSWORD", "")
 	Cfg.Database.Name = getEnv("DB_NAME", "pro_blog_db")
 	Cfg.Database.SslMode = getEnv("DB_SSLMODE", "disable")
+
+	// JWT config
+	Cfg.JWT.Secret = getEnv("JWT_SECRET", "your-secret-key")
+	Cfg.JWT.TokenExpiry = time.Hour * 24    // 24 hours
+	Cfg.JWT.RefreshExpiry = time.Hour * 168 // 7 days
 }
 
 func getEnv(key, fallback string) string {

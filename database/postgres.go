@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Rfirsov/Pro-Blog/internal/user"
 	"github.com/Rfirsov/Pro-Blog/config"
+	"github.com/Rfirsov/Pro-Blog/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -37,7 +37,7 @@ func InitDB() {
 	}
 
 	errAutoMigrate := DB.AutoMigrate(
-		&user.User{}, // Add more models here
+		&models.User{}, // Add more models here
 	)
 	if errAutoMigrate != nil {
 		log.Fatal("Failed to migrate database schema:", errAutoMigrate)
