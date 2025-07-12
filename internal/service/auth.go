@@ -58,6 +58,7 @@ func (s *authService) GenerateJWT(user *models.User) (string, error) {
 	now := time.Now()
 	claims := jwt.MapClaims{
 		"user_id": user.ID,
+		"role":    user.Role,
 		"email":   user.Email,
 		"iat":     now.Unix(),
 		"exp":     now.Add(s.tokenExpiration).Unix(),

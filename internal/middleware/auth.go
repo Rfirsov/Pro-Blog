@@ -70,9 +70,38 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 
 		// Set user information in context
 		c.Set("user_id", claims["user_id"])
+		c.Set("role", claims["role"])
 		c.Set("email", claims["email"])
 
 		c.Next()
+	}
+}
+
+func RequireRoles(roles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		roleValue, exists := c.Get("role")
+		if !exists {
+			c.JSON(http.StatusForbidden, gin.H{"error": customErrors.ErrRoleNotFoundInToken.Error()})
+			c.Abort()
+			return
+		}
+
+		userRole, ok := roleValue.(string)
+		if !ok {
+			c.JSON(http.StatusForbidden, gin.H{"error": customErrors.ErrInvalidRoleFormat.Error()})
+			c.Abort()
+			return
+		}
+
+		for _, allowed := range roles {
+			if userRole == allowed {
+				c.Next()
+				return
+			}
+		}
+
+		c.JSON(http.StatusForbidden, gin.H{"error": customErrors.ErrUnauthorizedResourceAccess.Error()})
+		c.Abort()
 	}
 }
 

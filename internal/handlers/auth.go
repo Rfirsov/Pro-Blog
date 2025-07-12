@@ -155,9 +155,11 @@ func (h *authHandler) Logout(c *gin.Context) {
 func (h *authHandler) GetUserProfile(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	email, _ := c.Get("email")
+	userRole, _ := c.Get("role")
 
 	c.JSON(200, gin.H{
 		"user_id": userID,
 		"email":   email,
+		"role":    userRole,
 	})
 }
