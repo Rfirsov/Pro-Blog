@@ -5,13 +5,17 @@ import (
 	"github.com/Rfirsov/Pro-Blog/config"
 	"github.com/Rfirsov/Pro-Blog/internal/middleware"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func NewRouter() *gin.Engine {
 	// Initialize router with middleware
 	router := gin.New()
 	router.Use(gin.Recovery())
-	router.Use(gin.Logger())
+	router.Use(gin.Logger())	
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// CORS middleware
 	router.Use(func(c *gin.Context) {
@@ -47,4 +51,3 @@ func NewRouter() *gin.Engine {
 
 	return router
 }
-

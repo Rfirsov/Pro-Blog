@@ -29,6 +29,18 @@ func NewAuthHandler(s service.AuthService, tokenExpiration time.Duration) *authH
 	return &authHandler{service: s, tokenExpiration: tokenExpiration}
 }
 
+// Register godoc
+// @Summary      Register new user
+// @Description  Register a new user with email and password
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        user  body      models.UserRegister  true  "User registration data"
+// @Success      201   {object}  map[string]interface{}
+// @Failure      400   {object}  map[string]string
+// @Failure      409   {object}  map[string]string
+// @Failure      500   {object}  map[string]string
+// @Router       /api/v1/register [post]
 func (h *authHandler) Register(c *gin.Context) {
 	var user models.UserRegister
 
@@ -78,6 +90,17 @@ func (h *authHandler) Register(c *gin.Context) {
 	})
 }
 
+// Login godoc
+// @Summary      User login
+// @Description  Authenticate user and get JWT token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Success      200          {object}  map[string]string
+// @Failure      400          {object}  map[string]string
+// @Failure      401          {object}  map[string]string
+// @Failure      500          {object}  map[string]string
+// @Router       /api/v1/login [post]
 // Login handles user authentication and JWT generation
 func (h *authHandler) Login(c *gin.Context) {
 	var req models.UserLogin
@@ -121,6 +144,16 @@ func (h *authHandler) Login(c *gin.Context) {
 	})
 }
 
+// RefreshToken godoc
+// @Summary      Refresh JWT token
+// @Description  Generate a new JWT token using a valid refresh token
+// @Tags         auth
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /api/v1/refresh-token [post]
+// @Security     ApiKeyAuth
 // RefreshToken generates a new token for valid users
 func (h *authHandler) RefreshToken(c *gin.Context) {
 	// Get user ID from context (set by auth middleware)
@@ -144,7 +177,14 @@ func (h *authHandler) RefreshToken(c *gin.Context) {
 	})
 }
 
-// Logout endpoint
+// Logout godoc
+// @Summary      Logout user
+// @Description  Logout user and invalidate tokens on client side
+// @Tags         auth
+// @Produce      json
+// @Success      200  {object}  map[string]string
+// @Router       /api/v1/logout [post]
+// @Security ApiKeyAuth
 func (h *authHandler) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message":      "Successfully logged out",
@@ -152,6 +192,15 @@ func (h *authHandler) Logout(c *gin.Context) {
 	})
 }
 
+// GetUserProfile godoc
+// @Summary      Get user profile
+// @Description  Retrieve logged-in user's profile information
+// @Tags         user
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]string
+// @Security     ApiKeyAuth
+// @Router       /api/v1/profile [get]
 func (h *authHandler) GetUserProfile(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	email, _ := c.Get("email")
