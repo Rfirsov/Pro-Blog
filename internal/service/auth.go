@@ -14,10 +14,10 @@ import (
 type AuthService interface {
 	IfUserExists(email string) (bool, error)
 	Registration(newUser *models.User) error
-	GetUser(req models.UserLogin) (*models.User, error)
+	GetUser(req models.UserLoginRequest) (*models.User, error)
 	GenerateJWT(user *models.User) (string, error)
 	GenerateRefreshJWT(userID int) (string, error)
-	ValidateEmailFormat(user *models.UserRegister) error
+	ValidateEmailFormat(user *models.UserRegisterRequest) error
 }
 
 type authService struct {
@@ -42,7 +42,7 @@ func (s *authService) Registration(newUser *models.User) error {
 
 }
 
-func (s *authService) GetUser(req models.UserLogin) (*models.User, error) {
+func (s *authService) GetUser(req models.UserLoginRequest) (*models.User, error) {
 	user, err := s.repo.GetUserByEmail(req.Email)
 	return user, err
 }
@@ -83,7 +83,7 @@ func (s *authService) GenerateRefreshJWT(userID int) (string, error) {
 }
 
 // Validate checks if email format is valid
-func (s *authService) ValidateEmailFormat(u *models.UserRegister) error {
+func (s *authService) ValidateEmailFormat(u *models.UserRegisterRequest) error {
 	emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
 	if !emailRegex.MatchString(u.Email) {
 		return customErrors.ErrInvalidEmailFormat

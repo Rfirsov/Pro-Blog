@@ -42,7 +42,7 @@ func NewAuthHandler(s service.AuthService, tokenExpiration time.Duration) *authH
 // @Failure      500   {object}  map[string]string
 // @Router       /api/v1/register [post]
 func (h *authHandler) Register(c *gin.Context) {
-	var user models.UserRegister
+	var user models.UserRegisterRequest
 
 	// Validate input JSON
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -103,7 +103,7 @@ func (h *authHandler) Register(c *gin.Context) {
 // @Router       /api/v1/login [post]
 // Login handles user authentication and JWT generation
 func (h *authHandler) Login(c *gin.Context) {
-	var req models.UserLogin
+	var req models.UserLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": customErrors.ErrInvalidLoginData.Error()})
 		return
