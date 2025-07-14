@@ -138,9 +138,9 @@ func (h *authHandler) Login(c *gin.Context) {
 
 	// Return token with expiration
 	c.JSON(http.StatusOK, gin.H{
-		"token":      tokenString,
-		"expires_in": h.tokenExpiration.Seconds(),
-		"token_type": "Bearer",
+		"access_token": tokenString,
+		"expires_in":   h.tokenExpiration.Seconds(),
+		"token_type":   "Bearer",
 	})
 }
 
@@ -171,9 +171,9 @@ func (h *authHandler) RefreshToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"token":      tokenString,
-		"expires_in": h.tokenExpiration.Seconds(),
-		"token_type": "Bearer",
+		"access_token": tokenString,
+		"expires_in":   h.tokenExpiration.Seconds(),
+		"token_type":   "Bearer",
 	})
 }
 
