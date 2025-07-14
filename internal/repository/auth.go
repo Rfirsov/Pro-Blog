@@ -21,7 +21,7 @@ func NewAuthRepository(base *BaseRepository) AuthRepository {
 
 func (r *authRepo) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
-	err := r.DB.Select("id", "email", "password").Where("email = ?", email).First(&user).Error
+	err := r.DB.Select("id", "email", "role", "password").Where("email = ?", email).First(&user).Error
 
 	return &user, err
 }
