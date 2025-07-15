@@ -1,15 +1,123 @@
 basePath: /
 definitions:
-  models.UserRegister:
+  models.UserLoginFailureBadRequestResponse:
+    properties:
+      error:
+        example: invalid login data
+        type: string
+    type: object
+  models.UserLoginFailureInternalServerErrorResponse:
+    properties:
+      error:
+        example: login process failed
+        type: string
+    type: object
+  models.UserLoginFailureUnauthorizedResponse:
+    properties:
+      error:
+        example: invalid credentials
+        type: string
+    type: object
+  models.UserLoginRequest:
     properties:
       email:
+        type: string
+      name:
         type: string
       password:
         minLength: 6
         type: string
     required:
     - email
+    - name
     - password
+    type: object
+  models.UserLoginSuccessResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      token_type:
+        type: string
+    type: object
+  models.UserLogoutFailureUnauthorizedResponse:
+    properties:
+      error:
+        example: invalid or expired token
+        type: string
+    type: object
+  models.UserLogoutSuccessResponse:
+    properties:
+      instructions:
+        example: Please remove the token from your client storage
+        type: string
+      message:
+        example: Successfully logged out
+        type: string
+    type: object
+  models.UserRefreshTokenFailureServerErrorResponse:
+    properties:
+      error:
+        example: token refresh failed
+        type: string
+    type: object
+  models.UserRefreshTokenFailureUnauthorizedResponse:
+    properties:
+      error:
+        example: invalid or expired token
+        type: string
+    type: object
+  models.UserRefreshTokenSuccessResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      token_type:
+        type: string
+    type: object
+  models.UserRegisterFailureBadRequestResponse:
+    properties:
+      details:
+        type: string
+      error:
+        example: invalid input format
+        type: string
+    type: object
+  models.UserRegisterFailureConflictResponse:
+    properties:
+      error:
+        example: email already registered
+        type: string
+    type: object
+  models.UserRegisterFailureInternalServerErrorResponse:
+    properties:
+      error:
+        example: password processing failed
+        type: string
+    type: object
+  models.UserRegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  models.UserRegisterSuccessResponse:
+    properties:
+      message:
+        example: User registered successfully
+        type: string
+      user_id:
+        type: integer
     type: object
 host: localhost:8080
 info:
@@ -29,33 +137,32 @@ paths:
       consumes:
       - application/json
       description: Authenticate user and get JWT token
+      parameters:
+      - description: User login data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserLoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.UserLoginSuccessResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.UserLoginFailureBadRequestResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.UserLoginFailureUnauthorizedResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.UserLoginFailureInternalServerErrorResponse'
       summary: User login
       tags:
       - auth
@@ -68,9 +175,11 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.UserLogoutSuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.UserLogoutFailureUnauthorizedResponse'
       security:
       - ApiKeyAuth: []
       summary: Logout user
@@ -107,20 +216,15 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.UserRefreshTokenSuccessResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.UserRefreshTokenFailureUnauthorizedResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.UserRefreshTokenFailureServerErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Refresh JWT token
@@ -137,33 +241,26 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.UserRegister'
+          $ref: '#/definitions/models.UserRegisterRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.UserRegisterSuccessResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.UserRegisterFailureBadRequestResponse'
         "409":
           description: Conflict
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.UserRegisterFailureConflictResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.UserRegisterFailureInternalServerErrorResponse'
       summary: Register new user
       tags:
       - auth

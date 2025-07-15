@@ -9,6 +9,7 @@ import (
 	"github.com/Rfirsov/Pro-Blog/internal/service"
 	"github.com/Rfirsov/Pro-Blog/internal/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -35,11 +36,11 @@ func NewAuthHandler(s service.AuthService, tokenExpiration time.Duration) *authH
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        user  body      models.UserRegister  true  "User registration data"
-// @Success      201   {object}  map[string]interface{}
-// @Failure      400   {object}  map[string]string
-// @Failure      409   {object}  map[string]string
-// @Failure      500   {object}  map[string]string
+// @Param        user  body      models.UserRegisterRequest  true  "User registration data"
+// @Success      201   {object}  models.UserRegisterSuccessResponse
+// @Failure      400   {object}  models.UserRegisterFailureBadRequestResponse
+// @Failure      409   {object}  models.UserRegisterFailureConflictResponse
+// @Failure      500   {object}  models.UserRegisterFailureInternalServerErrorResponse
 // @Router       /api/v1/register [post]
 func (h *authHandler) Register(c *gin.Context) {
 	var user models.UserRegisterRequest
@@ -96,10 +97,11 @@ func (h *authHandler) Register(c *gin.Context) {
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Success      200          {object}  map[string]string
-// @Failure      400          {object}  map[string]string
-// @Failure      401          {object}  map[string]string
-// @Failure      500          {object}  map[string]string
+// @Param        user  body   models.UserLoginRequest  true  "User login data"
+// @Success      200          {object}  models.UserLoginSuccessResponse
+// @Failure      400          {object}  models.UserLoginFailureBadRequestResponse
+// @Failure      401          {object}  models.UserLoginFailureUnauthorizedResponse
+// @Failure      500          {object}  models.UserLoginFailureInternalServerErrorResponse
 // @Router       /api/v1/login [post]
 // Login handles user authentication and JWT generation
 func (h *authHandler) Login(c *gin.Context) {
@@ -149,9 +151,9 @@ func (h *authHandler) Login(c *gin.Context) {
 // @Description  Generate a new JWT token using a valid refresh token
 // @Tags         auth
 // @Produce      json
-// @Success      200  {object}  map[string]interface{}
-// @Failure      401  {object}  map[string]string
-// @Failure      500  {object}  map[string]string
+// @Success      200  {object}  models.UserRefreshTokenSuccessResponse
+// @Failure      401  {object}  models.UserRefreshTokenFailureUnauthorizedResponse
+// @Failure      500  {object}  models.UserRefreshTokenFailureServerErrorResponse
 // @Router       /api/v1/refresh-token [post]
 // @Security     ApiKeyAuth
 // RefreshToken generates a new token for valid users
@@ -163,7 +165,14 @@ func (h *authHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	tokenString, err := h.service.GenerateRefreshJWT(userID.(int))
+	userIDStr, ok := userID.(string)
+	userUUID, err := uuid.Parse(userIDStr)
+	if !ok || err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": customErrors.ErrUserNotAuthenticated.Error()})
+		return
+	}
+
+	tokenString, err := h.service.GenerateRefreshJWT(userUUID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": customErrors.ErrTokenRefresh.Error()})
@@ -182,9 +191,10 @@ func (h *authHandler) RefreshToken(c *gin.Context) {
 // @Description  Logout user and invalidate tokens on client side
 // @Tags         auth
 // @Produce      json
-// @Success      200  {object}  map[string]string
+// @Success      200  {object}  models.UserLogoutSuccessResponse
+// @Failure      401  {object}  models.UserLogoutFailureUnauthorizedResponse
+// @Security     ApiKeyAuth
 // @Router       /api/v1/logout [post]
-// @Security ApiKeyAuth
 func (h *authHandler) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message":      "Successfully logged out",
@@ -197,17 +207,20 @@ func (h *authHandler) Logout(c *gin.Context) {
 // @Description  Retrieve logged-in user's profile information
 // @Tags         user
 // @Produce      json
-// @Success      200  {object}  map[string]interface{}
-// @Failure      401  {object}  map[string]string
+// @Success      200  {object}  models.UserProfileResponseSuccessResponse
+// @Failure      401  {object}  models.UserProfileResponseFailureUnauthorizedResponse
+// @Failure      500  {object}  models.UserProfileResponseFailureInternalServerErrorResponse
 // @Security     ApiKeyAuth
 // @Router       /api/v1/profile [get]
 func (h *authHandler) GetUserProfile(c *gin.Context) {
 	userID, _ := c.Get("user_id")
+	name, _ := c.Get("name")
 	email, _ := c.Get("email")
 	userRole, _ := c.Get("role")
 
 	c.JSON(200, gin.H{
 		"user_id": userID,
+		"name":    name,
 		"email":   email,
 		"role":    userRole,
 	})

@@ -9,6 +9,7 @@ import (
 	"github.com/Rfirsov/Pro-Blog/internal/models"
 	"github.com/Rfirsov/Pro-Blog/internal/repository"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 type AuthService interface {
@@ -16,7 +17,7 @@ type AuthService interface {
 	Registration(newUser *models.User) error
 	GetUser(req models.UserLoginRequest) (*models.User, error)
 	GenerateJWT(user *models.User) (string, error)
-	GenerateRefreshJWT(userID int) (string, error)
+	GenerateRefreshJWT(userID uuid.UUID) (string, error)
 	ValidateEmailFormat(user *models.UserRegisterRequest) error
 }
 
@@ -69,10 +70,10 @@ func (s *authService) GenerateJWT(user *models.User) (string, error) {
 	return tokenString, err
 }
 
-func (s *authService) GenerateRefreshJWT(userID int) (string, error) {
+func (s *authService) GenerateRefreshJWT(userID uuid.UUID) (string, error) {
 	now := time.Now()
 	claims := jwt.MapClaims{
-		"user_id": userID,
+		"user_id": userID.String(),
 		"iat":     now.Unix(),
 		"exp":     now.Add(s.tokenExpiration).Unix(),
 	}
