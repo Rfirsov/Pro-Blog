@@ -1,5 +1,43 @@
 basePath: /
 definitions:
+  models.GetUserProfileFailureInternalServerErrorResponse:
+    properties:
+      error:
+        example: failed to retrieve user profile
+        type: string
+    type: object
+  models.GetUserProfileFailureUnauthorizedResponse:
+    properties:
+      error:
+        example: user not authenticated
+        type: string
+    type: object
+  models.GetUserProfileSuccessResponse:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      name:
+        example: John Doe
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/models.Role'
+        example: user
+      user_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+    type: object
+  models.Role:
+    enum:
+    - user
+    - author
+    - admin
+    type: string
+    x-enum-varnames:
+    - RoleUser
+    - RoleAuthor
+    - RoleAdmin
   models.UserLoginFailureBadRequestResponse:
     properties:
       error:
@@ -117,7 +155,8 @@ definitions:
         example: User registered successfully
         type: string
       user_id:
-        type: integer
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -194,14 +233,15 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.GetUserProfileSuccessResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.GetUserProfileFailureUnauthorizedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.GetUserProfileFailureInternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get user profile

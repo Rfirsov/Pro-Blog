@@ -91,6 +91,7 @@ type UserLogoutFailureUnauthorizedResponse struct {
 	Error string `json:"error" example:"invalid or expired token"`
 }
 
+// Get user profile structure
 type GetUserProfileSuccessResponse struct {
 	UserID string `json:"user_id" example:"123e4567-e89b-12d3-a456-426614174000"`
 	Name   string `json:"name" example:"John Doe"`
@@ -102,6 +103,6 @@ type GetUserProfileFailureUnauthorizedResponse struct {
 	Error string `json:"error" example:"user not authenticated"`
 }
 
-type UserProfileResponseFailureInternalServerErrorResponse struct {
+type GetUserProfileFailureInternalServerErrorResponse struct {
 	Error string `json:"error" example:"failed to retrieve user profile"`
 }

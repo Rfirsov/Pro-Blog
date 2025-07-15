@@ -207,9 +207,9 @@ func (h *authHandler) Logout(c *gin.Context) {
 // @Description  Retrieve logged-in user's profile information
 // @Tags         user
 // @Produce      json
-// @Success      200  {object}  models.UserProfileResponseSuccessResponse
-// @Failure      401  {object}  models.UserProfileResponseFailureUnauthorizedResponse
-// @Failure      500  {object}  models.UserProfileResponseFailureInternalServerErrorResponse
+// @Success      200  {object}  models.GetUserProfileSuccessResponse
+// @Failure      401  {object}  models.GetUserProfileFailureUnauthorizedResponse
+// @Failure      500  {object}  models.GetUserProfileFailureInternalServerErrorResponse
 // @Security     ApiKeyAuth
 // @Router       /api/v1/profile [get]
 func (h *authHandler) GetUserProfile(c *gin.Context) {

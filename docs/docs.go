@@ -125,17 +125,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.GetUserProfileSuccessResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.GetUserProfileFailureUnauthorizedResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetUserProfileFailureInternalServerErrorResponse"
                         }
                     }
                 }
@@ -232,6 +234,62 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.GetUserProfileFailureInternalServerErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "failed to retrieve user profile"
+                }
+            }
+        },
+        "models.GetUserProfileFailureUnauthorizedResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "user not authenticated"
+                }
+            }
+        },
+        "models.GetUserProfileSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "john@example.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "role": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Role"
+                        }
+                    ],
+                    "example": "user"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                }
+            }
+        },
+        "models.Role": {
+            "type": "string",
+            "enum": [
+                "user",
+                "author",
+                "admin"
+            ],
+            "x-enum-varnames": [
+                "RoleUser",
+                "RoleAuthor",
+                "RoleAdmin"
+            ]
+        },
         "models.UserLoginFailureBadRequestResponse": {
             "type": "object",
             "properties": {
@@ -405,7 +463,8 @@ const docTemplate = `{
                     "example": "User registered successfully"
                 },
                 "user_id": {
-                    "type": "integer"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 }
             }
         }
