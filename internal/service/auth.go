@@ -60,6 +60,7 @@ func (s *authService) GenerateJWT(user *models.User) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": user.ID,
 		"role":    user.Role,
+		"name":    user.Name,
 		"email":   user.Email,
 		"iat":     now.Unix(),
 		"exp":     now.Add(s.tokenExpiration).Unix(),
@@ -72,8 +73,15 @@ func (s *authService) GenerateJWT(user *models.User) (string, error) {
 
 func (s *authService) GenerateRefreshJWT(userID uuid.UUID) (string, error) {
 	now := time.Now()
+	user, err := s.repo.GetUserById(userID.String())
+	if err != nil {
+		return "", customErrors.ErrUserNotFound
+	}
 	claims := jwt.MapClaims{
 		"user_id": userID.String(),
+		"role":    user.Role,
+		"name":    user.Name,
+		"email":   user.Email,
 		"iat":     now.Unix(),
 		"exp":     now.Add(s.tokenExpiration).Unix(),
 	}

@@ -73,7 +73,7 @@ func (h *authHandler) Register(c *gin.Context) {
 
 	// Hash password
 	hashedPassword, errHashedPassword := utils.HashPassword(user.Password)
-	newUser := models.User{Email: user.Email, Password: hashedPassword}
+	newUser := models.User{Name: user.Name, Email: user.Email, Password: hashedPassword}
 	if errHashedPassword != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": customErrors.ErrPasswordProcessing.Error()})
 		return

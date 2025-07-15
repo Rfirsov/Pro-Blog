@@ -7,6 +7,7 @@ import (
 
 type AuthRepository interface {
 	GetUserByEmail(email string) (*models.User, error)
+	GetUserById(userId string) (*models.User, error)
 	IfUserExistsByEmail(email string) (bool, error)
 	CreateNewUser(newUser *models.User) error
 }
@@ -21,7 +22,14 @@ func NewAuthRepository(base *BaseRepository) AuthRepository {
 
 func (r *authRepo) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
-	err := r.DB.Select("id", "email", "role", "password").Where("email = ?", email).First(&user).Error
+	err := r.DB.Select("id", "name", "email", "role", "password").Where("email = ?", email).First(&user).Error
+
+	return &user, err
+}
+
+func (r *authRepo) GetUserById(userId string) (*models.User, error) {
+	var user models.User
+	err := r.DB.Select("id", "name", "email", "role", "password").Where("id = ?", userId).First(&user).Error
 
 	return &user, err
 }

@@ -70,6 +70,7 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 
 		// Set user information in context
 		c.Set("user_id", claims["user_id"])
+		c.Set("name", claims["name"])
 		c.Set("role", claims["role"])
 		c.Set("email", claims["email"])
 
