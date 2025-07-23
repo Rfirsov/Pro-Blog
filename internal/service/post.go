@@ -1,6 +1,9 @@
 package service
 
 import (
+	"fmt"
+
+	customErrors "github.com/Rfirsov/Pro-Blog/internal/errors"
 	"github.com/Rfirsov/Pro-Blog/internal/models"
 	"github.com/Rfirsov/Pro-Blog/internal/repository"
 	"github.com/google/uuid"
@@ -12,7 +15,6 @@ type PostService interface {
 	GetAllPosts() ([]models.Post, error)
 	GetPostByID(id uuid.UUID) (*models.Post, error)
 	DeletePost(id uuid.UUID) error
-	GenerateSlug(title string) string
 }
 
 type postService struct {
@@ -24,11 +26,16 @@ func NewPostService(r repository.PostRepository) PostService {
 }
 
 func (s *postService) CreatePost(userID uuid.UUID, req *models.CreatePostRequest) (*models.Post, error) {
+	slug, errSlug := s.generateUniqueSlug(req.Title)
+	if errSlug != nil {
+		return nil, errSlug
+	}
+
 	post := &models.Post{
 		ID:       uuid.New(),
 		AuthorID: userID,
 		Title:    req.Title,
-		Slug:     slug.Make(req.Title),
+		Slug:     slug,
 		Content:  req.Content,
 		Status:   "draft", // Default status
 	}
@@ -56,6 +63,32 @@ func (s *postService) DeletePost(id uuid.UUID) error {
 	return s.repo.Delete(id)
 }
 
-func (s *postService) GenerateSlug(title string) string {
-	return slug.Make(title)
+func (s *postService) generateUniqueSlug(title string) (string, error) {
+	baseSlug := slug.Make(title)
+	if baseSlug == "" {
+		return "", customErrors.ErrInvalidSlugTitle
+	}
+
+	slugCandidate := baseSlug
+	suffix := 1
+
+	for {
+		exists, err := s.repo.IsSlugExists(slugCandidate)
+		if err != nil {
+			// Wrap and return repository error
+			return "", fmt.Errorf("checking slug existence: %w", err)
+		}
+
+		if !exists {
+			break
+		}
+
+		slugCandidate = fmt.Sprintf("%s-%d", baseSlug, suffix)
+		suffix++
+		if suffix > 100 {
+			return "", customErrors.ErrSlugGenerationExhausted
+		}
+	}
+
+	return slugCandidate, nil
 }

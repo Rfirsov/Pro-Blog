@@ -11,6 +11,7 @@ type PostRepository interface {
 	FindAll() ([]models.Post, error)
 	Update(post *models.Post) error
 	Delete(id uuid.UUID) error
+	IsSlugExists(slug string) (bool, error)
 }
 
 type postRepo struct {
@@ -47,4 +48,10 @@ func (r *postRepo) Update(post *models.Post) error {
 
 func (r *postRepo) Delete(id uuid.UUID) error {
 	return r.DB.Delete(&models.Post{}, "id = ?", id).Error
+}
+
+func (r *postRepo) IsSlugExists(slug string) (bool, error) {
+	var count int64
+	err := r.DB.Model(&models.Post{}).Where("slug = ?", slug).Count(&count).Error
+	return count > 0, err
 }
