@@ -7,9 +7,9 @@ import (
 
 type PostRepository interface {
 	Create(post *models.Post) error
+	Update(post *models.Post) error
 	FindByID(id uuid.UUID) (*models.Post, error)
 	FindAll() ([]models.Post, error)
-	Update(post *models.Post) error
 	Delete(id uuid.UUID) error
 	IsSlugExists(slug string) (bool, error)
 }
@@ -26,6 +26,18 @@ func (r *postRepo) Create(post *models.Post) error {
 	return r.DB.Create(post).Error
 }
 
+func (r *postRepo) Update(updatedPost *models.Post) error {
+	err := r.DB.Model(updatedPost).Where("id = ?", updatedPost.ID).Updates(map[string]interface{}{
+		"title":     updatedPost.Title,
+		"author_id": updatedPost.AuthorID,
+		"status":    updatedPost.Status,
+		"slug":      updatedPost.Slug,
+		"content":   updatedPost.Content,
+	}).Error
+
+	return err
+}
+
 func (r *postRepo) FindByID(id uuid.UUID) (*models.Post, error) {
 	var post models.Post
 	if err := r.DB.First(&post, "id = ?", id).Error; err != nil {
@@ -40,10 +52,6 @@ func (r *postRepo) FindAll() ([]models.Post, error) {
 		return nil, err
 	}
 	return posts, nil
-}
-
-func (r *postRepo) Update(post *models.Post) error {
-	return r.DB.Save(post).Error
 }
 
 func (r *postRepo) Delete(id uuid.UUID) error {

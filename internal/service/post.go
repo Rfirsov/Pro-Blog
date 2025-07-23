@@ -12,6 +12,7 @@ import (
 
 type PostService interface {
 	CreatePost(userID uuid.UUID, req *models.CreatePostRequest) (*models.Post, error)
+	UpdatePost(id uuid.UUID, req *models.UpdatePostRequest) (*models.Post, error)
 	GetAllPosts() ([]models.Post, error)
 	GetPostByID(id uuid.UUID) (*models.Post, error)
 	DeletePost(id uuid.UUID) error
@@ -48,6 +49,30 @@ func (s *postService) CreatePost(userID uuid.UUID, req *models.CreatePostRequest
 	return post, nil
 }
 
+func (s *postService) UpdatePost(id uuid.UUID, req *models.UpdatePostRequest) (*models.Post, error) {
+	post, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.Title != post.Title {
+		slug, err := s.generateUniqueSlug(req.Title)
+		if err != nil {
+			return nil, err
+		}
+		post.Slug = slug
+	}
+
+	post.Title = req.Title
+	post.Content = req.Content
+
+	if err := s.repo.Update(post); err != nil {
+		return nil, err
+	}
+
+	return post, nil
+}
+
 func (s *postService) GetAllPosts() ([]models.Post, error) {
 	return s.repo.FindAll()
 }
@@ -55,9 +80,6 @@ func (s *postService) GetAllPosts() ([]models.Post, error) {
 func (s *postService) GetPostByID(id uuid.UUID) (*models.Post, error) {
 	return s.repo.FindByID(id)
 }
-
-// func (s *postService) UpdatePost(id uuid.UUID, req *models.UpdatePostRequest) (*models.Post, error) {
-// }
 
 func (s *postService) DeletePost(id uuid.UUID) error {
 	return s.repo.Delete(id)

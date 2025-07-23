@@ -58,6 +58,7 @@ func NewRouter() *gin.Engine {
 	postRoutes := protectedAuth.Group("/posts")
 	{
 		postRoutes.POST("", postHandler.CreatePost)
+		postRoutes.PATCH("/:id", postHandler.UpdatePost)
 		postRoutes.DELETE("/:id", postHandler.DeletePost)
 	}
 

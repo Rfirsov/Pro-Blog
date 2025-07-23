@@ -40,6 +40,30 @@ type CreatePostFailureInternalServerErrorResponse struct {
 	Details string `json:"details" example:"error details if available"`
 }
 
+// Post update structure
+type UpdatePostRequest struct {
+	Title   string `json:"title" binding:"min=3,max=255"`
+	Content string `json:"content" binding:"min=10"`
+}
+
+type UpdatePostSuccessResponse struct {
+	Message string `json:"message" example:"post updated successfully"`
+	Post    Post   `json:"post"`
+}
+
+type UpdatePostFailureBadRequestResponse struct {
+	Error string `json:"error" example:"invalid post data"`
+}
+
+type UpdatePostFailureUnauthorizedResponse struct {
+	Error string `json:"error" example:"invalid credentials"`
+}
+
+type UpdatePostFailureInternalServerErrorResponse struct {
+	Error   string `json:"error" example:"post update failed"`
+	Details string `json:"details" example:"error details if available"`
+}
+
 // Get all posts response structure
 type GetAllPostsSuccessResponse struct {
 	Posts []Post `json:"posts"`

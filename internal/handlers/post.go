@@ -12,6 +12,7 @@ import (
 
 type PostHandler interface {
 	CreatePost(c *gin.Context)
+	UpdatePost(c *gin.Context)
 	GetAllPosts(c *gin.Context)
 	GetPostByID(c *gin.Context)
 	DeletePost(c *gin.Context)
@@ -64,6 +65,42 @@ func (h *postHandler) CreatePost(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"post": post})
+}
+
+// UpdatePost godoc
+// @Summary      Update an existing blog post
+// @Description  Update a post by its ID
+// @Tags         posts
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string  true  "Post ID (UUID)"
+// @Param        post  body      models.UpdatePostRequest  true  "Post data"
+// @Success      200   {object}  models.UpdatePostSuccessResponse
+// @Failure      400   {object}  models.UpdatePostFailureBadRequestResponse
+// @Failure      401   {object}  models.UpdatePostFailureUnauthorizedResponse
+// @Failure      500   {object}  models.UpdatePostFailureInternalServerErrorResponse
+// @Security     ApiKeyAuth
+// @Router       /api/v1/posts/{id} [patch]
+func (h *postHandler) UpdatePost(c *gin.Context) {
+	var req models.UpdatePostRequest
+	postID, err := utils.GetUUIDFromParam(c, "id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": customErrors.ErrPostId.Error()})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": customErrors.ErrInvalidPostData.Error()})
+		return
+	}
+
+	updatedPost, err := h.service.UpdatePost(postID, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": customErrors.ErrPostUpdate.Error(), "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "post updated successfully", "post": updatedPost})
 }
 
 // GetAllPosts godoc
