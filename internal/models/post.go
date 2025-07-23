@@ -19,8 +19,8 @@ type Post struct {
 
 // Post creation structure
 type CreatePostRequest struct {
-	Title   string `json:"title" binding:"required, min=3,max=255"`
-	Content string `json:"content" binding:"required, min=10"`
+	Title   string `json:"title" binding:"required,min=3,max=255"`
+	Content string `json:"content" binding:"required,min=10"`
 }
 
 type CreatePostSuccessResponse struct {
