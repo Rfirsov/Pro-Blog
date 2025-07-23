@@ -1,5 +1,108 @@
 basePath: /
 definitions:
+  models.CreatePostFailureBadRequestResponse:
+    properties:
+      error:
+        example: invalid post data
+        type: string
+    type: object
+  models.CreatePostFailureInternalServerErrorResponse:
+    properties:
+      details:
+        example: error details if available
+        type: string
+      error:
+        example: post creation failed
+        type: string
+    type: object
+  models.CreatePostFailureUnauthorizedResponse:
+    properties:
+      error:
+        example: invalid credentials
+        type: string
+    type: object
+  models.CreatePostRequest:
+    properties:
+      content:
+        type: string
+      title:
+        maxLength: 255
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  models.CreatePostSuccessResponse:
+    properties:
+      post:
+        $ref: '#/definitions/models.Post'
+    type: object
+  models.DeletePostFailureBadRequestResponse:
+    properties:
+      error:
+        example: post not found
+        type: string
+    type: object
+  models.DeletePostFailureInternalServerErrorResponse:
+    properties:
+      details:
+        example: error details if available
+        type: string
+      error:
+        example: post delete failed
+        type: string
+    type: object
+  models.DeletePostFailureUnauthorizedResponse:
+    properties:
+      error:
+        example: authorization header missing
+        type: string
+    type: object
+  models.DeletePostSuccessResponse:
+    properties:
+      message:
+        example: post deleted successfully
+        type: string
+      post_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+    type: object
+  models.GetAllPostsFailureInternalServerErrorResponse:
+    properties:
+      details:
+        example: error details if available
+        type: string
+      error:
+        example: error retrieving posts
+        type: string
+    type: object
+  models.GetAllPostsSuccessResponse:
+    properties:
+      posts:
+        items:
+          $ref: '#/definitions/models.Post'
+        type: array
+    type: object
+  models.GetPostByIDFailureBadRequestResponse:
+    properties:
+      error:
+        example: post not found
+        type: string
+    type: object
+  models.GetPostByIDFailureInternalServerErrorResponse:
+    properties:
+      details:
+        example: error details if available
+        type: string
+      error:
+        example: error retrieving post
+        type: string
+    type: object
+  models.GetPostByIDSuccessResponse:
+    properties:
+      post:
+        $ref: '#/definitions/models.Post'
+    type: object
   models.GetUserProfileFailureInternalServerErrorResponse:
     properties:
       error:
@@ -26,6 +129,25 @@ definitions:
         example: user
       user_id:
         example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+    type: object
+  models.Post:
+    properties:
+      author_id:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      slug:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+      updated_at:
         type: string
     type: object
   models.Role:
@@ -224,6 +346,117 @@ paths:
       summary: Logout user
       tags:
       - auth
+  /api/v1/posts:
+    get:
+      description: Retrieve all blog posts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetAllPostsSuccessResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.GetAllPostsFailureInternalServerErrorResponse'
+      summary: Get all posts
+      tags:
+      - posts
+    post:
+      consumes:
+      - application/json
+      description: Create a post by an authenticated user
+      parameters:
+      - description: Post data
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.CreatePostSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.CreatePostFailureBadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.CreatePostFailureUnauthorizedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.CreatePostFailureInternalServerErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new blog post
+      tags:
+      - posts
+  /api/v1/posts/{id}:
+    delete:
+      description: Delete a blog post by its ID
+      parameters:
+      - description: Post ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeletePostSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DeletePostFailureBadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.DeletePostFailureUnauthorizedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DeletePostFailureInternalServerErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete post
+      tags:
+      - posts
+    get:
+      description: Retrieve a post by its UUID
+      parameters:
+      - description: Post ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetPostByIDSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.GetPostByIDFailureBadRequestResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.GetPostByIDFailureInternalServerErrorResponse'
+      summary: Get post by ID
+      tags:
+      - posts
   /api/v1/profile:
     get:
       description: Retrieve logged-in user's profile information

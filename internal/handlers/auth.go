@@ -9,7 +9,6 @@ import (
 	"github.com/Rfirsov/Pro-Blog/internal/service"
 	"github.com/Rfirsov/Pro-Blog/internal/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -159,20 +158,18 @@ func (h *authHandler) Login(c *gin.Context) {
 // RefreshToken generates a new token for valid users
 func (h *authHandler) RefreshToken(c *gin.Context) {
 	// Get user ID from context (set by auth middleware)
-	userID, exists := c.Get("user_id")
+	userID, exists, err := utils.GetUUIDFromMiddleware(c, "user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": customErrors.ErrUserNotAuthenticated.Error()})
 		return
 	}
 
-	userIDStr, ok := userID.(string)
-	userUUID, err := uuid.Parse(userIDStr)
-	if !ok || err != nil {
+	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": customErrors.ErrUserNotAuthenticated.Error()})
 		return
 	}
 
-	tokenString, err := h.service.GenerateRefreshJWT(userUUID)
+	tokenString, err := h.service.GenerateRefreshJWT(userID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": customErrors.ErrTokenRefresh.Error()})

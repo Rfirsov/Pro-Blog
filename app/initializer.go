@@ -18,3 +18,12 @@ func InitializeAuthService() handlers.AuthHandler {
 	handler := handlers.NewAuthHandler(service, tokenExpiration)
 	return handler
 }
+
+func InitializePostService() handlers.PostHandler {
+	baseRepo := repository.NewBaseRepository(database.DB)
+
+	repo := repository.NewPostRepository(baseRepo)
+	service := service.NewPostService(repo)
+	handler := handlers.NewPostHandler(service)
+	return handler
+}

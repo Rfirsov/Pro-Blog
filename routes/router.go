@@ -13,7 +13,7 @@ func NewRouter() *gin.Engine {
 	// Initialize router with middleware
 	router := gin.New()
 	router.Use(gin.Recovery())
-	router.Use(gin.Logger())	
+	router.Use(gin.Logger())
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -32,21 +32,33 @@ func NewRouter() *gin.Engine {
 
 	// Initialize handlers with JWT configuration
 	authHandler := app.InitializeAuthService()
+	postHandler := app.InitializePostService()
 
 	// Public routes
-	public := router.Group("/api/v1")
+	publicAuth := router.Group("/api/v1")
 	{
-		public.POST("/register", authHandler.Register)
-		public.POST("/login", authHandler.Login)
+		publicAuth.POST("/register", authHandler.Register)
+		publicAuth.POST("/login", authHandler.Login)
+
+		// Public post routes
+		publicAuth.GET("/posts", postHandler.GetAllPosts)
+		publicAuth.GET("/posts/:id", postHandler.GetPostByID)
 	}
 
 	// Protected routes with JWT middleware
-	protected := router.Group("/api/v1")
-	protected.Use(middleware.AuthMiddleware([]byte(config.Cfg.JWT.Secret)))
+	protectedAuth := router.Group("/api/v1")
+	protectedAuth.Use(middleware.AuthMiddleware([]byte(config.Cfg.JWT.Secret)))
 	{
-		protected.POST("/refresh-token", authHandler.RefreshToken)
-		protected.POST("/logout", authHandler.Logout)
-		protected.GET("/profile", authHandler.GetUserProfile)
+		protectedAuth.POST("/refresh-token", authHandler.RefreshToken)
+		protectedAuth.POST("/logout", authHandler.Logout)
+		protectedAuth.GET("/profile", authHandler.GetUserProfile)
+	}
+
+	// Protected Post routes
+	postRoutes := protectedAuth.Group("/posts")
+	{
+		postRoutes.POST("", postHandler.CreatePost)
+		postRoutes.DELETE("/:id", postHandler.DeletePost)
 	}
 
 	return router
