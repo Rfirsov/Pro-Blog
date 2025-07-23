@@ -24,9 +24,11 @@ definitions:
   models.CreatePostRequest:
     properties:
       content:
+        minLength: 10
         type: string
       title:
         maxLength: 255
+        minLength: 3
         type: string
     required:
     - content
