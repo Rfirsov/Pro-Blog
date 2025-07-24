@@ -10,7 +10,7 @@ type User struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	Name      string    `gorm:"type:varchar(100);not null" json:"name"`
 	Email     string    `gorm:"uniqueIndex;type:varchar(255);not null"`
-	Password  string    `json:"-"` // "-" means this won't be included in JSON
+	Password  string    `json:"-"`
 	Role      Role      `gorm:"type:varchar(20);default:'user'" json:"role"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -43,7 +43,6 @@ type UserRegisterFailureInternalServerErrorResponse struct {
 
 // User login structure
 type UserLoginRequest struct {
-	Name     string `json:"name" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=6"`
 }
