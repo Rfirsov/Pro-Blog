@@ -7,20 +7,23 @@ import (
 )
 
 type Post struct {
-	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
-	Title     string    `gorm:"type:varchar(255);not null" json:"title"`
-	Slug      string    `gorm:"uniqueIndex;not null" json:"slug"`
-	Content   string    `gorm:"type:text" json:"content"`
-	Status    string    `gorm:"default:'draft'" json:"status"`
-	AuthorID  uuid.UUID `gorm:"type:uuid;not null" json:"author_id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID          uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	Title       string     `gorm:"type:varchar(255);not null" json:"title"`
+	Slug        string     `gorm:"uniqueIndex;not null" json:"slug"`
+	Content     string     `gorm:"type:text" json:"content"`
+	StatusID    uint       `gorm:"default:1" json:"-"`
+	Status      PostStatus `gorm:"foreignKey:StatusID" json:"-"`
+	StatusValue string     `gorm:"-" json:"status"`
+	AuthorID    uuid.UUID  `gorm:"type:uuid;not null" json:"author_id"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
 // Post creation structure
 type CreatePostRequest struct {
 	Title   string `json:"title" binding:"required,min=3,max=255"`
 	Content string `json:"content" binding:"required,min=10"`
+	Status  string `json:"status" binding:"required,oneof=draft published archived"`
 }
 
 type CreatePostSuccessResponse struct {
@@ -44,6 +47,7 @@ type CreatePostFailureInternalServerErrorResponse struct {
 type UpdatePostRequest struct {
 	Title   string `json:"title" binding:"min=3,max=255"`
 	Content string `json:"content" binding:"min=10"`
+	Status  string `json:"status" binding:"required,oneof=draft published archived"`
 }
 
 type UpdatePostSuccessResponse struct {
@@ -105,4 +109,13 @@ type DeletePostFailureUnauthorizedResponse struct {
 type DeletePostFailureInternalServerErrorResponse struct {
 	Error   string `json:"error" example:"post delete failed"`
 	Details string `json:"details" example:"error details if available"`
+}
+
+// Post status response structure
+type GetPostStatusesSuccessResponse struct {
+	Statuses []PostStatus `json:"statuses"`
+}
+
+type GetPostStatusesFailureInternalServerErrorResponse struct {
+	Error   string `json:"error" example:"could not fetch post statuses"`
 }

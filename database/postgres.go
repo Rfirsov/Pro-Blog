@@ -38,6 +38,7 @@ func InitDB() {
 
 	errAutoMigrate := DB.AutoMigrate(
 		&models.User{}, // Add more models here
+		&models.PostStatus{},
 		&models.Post{},
 	)
 	if errAutoMigrate != nil {

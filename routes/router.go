@@ -33,6 +33,7 @@ func NewRouter() *gin.Engine {
 	// Initialize handlers with JWT configuration
 	authHandler := app.InitializeAuthService()
 	postHandler := app.InitializePostService()
+	postStatusHandler := app.InitializePostStatusService()
 
 	// Public routes
 	publicAuth := router.Group("/api/v1")
@@ -58,6 +59,7 @@ func NewRouter() *gin.Engine {
 	postRoutes := protectedAuth.Group("/posts")
 	{
 		postRoutes.POST("", postHandler.CreatePost)
+		postRoutes.GET("/statuses", postStatusHandler.GetPostStatuses)
 		postRoutes.PATCH("/:id", postHandler.UpdatePost)
 		postRoutes.DELETE("/:id", postHandler.DeletePost)
 	}

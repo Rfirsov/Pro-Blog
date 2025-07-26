@@ -30,7 +30,7 @@ func (r *postRepo) Update(updatedPost *models.Post) error {
 	err := r.DB.Model(updatedPost).Where("id = ?", updatedPost.ID).Updates(map[string]interface{}{
 		"title":     updatedPost.Title,
 		"author_id": updatedPost.AuthorID,
-		"status":    updatedPost.Status,
+		"status_id": updatedPost.StatusID,
 		"slug":      updatedPost.Slug,
 		"content":   updatedPost.Content,
 	}).Error
@@ -40,17 +40,25 @@ func (r *postRepo) Update(updatedPost *models.Post) error {
 
 func (r *postRepo) FindByID(id uuid.UUID) (*models.Post, error) {
 	var post models.Post
-	if err := r.DB.First(&post, "id = ?", id).Error; err != nil {
+	if err := r.DB.Preload("Status").First(&post, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
+
+	post.StatusValue = post.Status.Value
+
 	return &post, nil
 }
 
 func (r *postRepo) FindAll() ([]models.Post, error) {
 	var posts []models.Post
-	if err := r.DB.Find(&posts).Error; err != nil {
+	if err := r.DB.Preload("Status").Find(&posts).Error; err != nil {
 		return nil, err
 	}
+
+	for i := range posts {
+		posts[i].StatusValue = posts[i].Status.Value
+	}
+
 	return posts, nil
 }
 

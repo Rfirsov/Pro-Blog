@@ -19,11 +19,12 @@ type PostService interface {
 }
 
 type postService struct {
-	repo repository.PostRepository
+	repo       repository.PostRepository
+	statusRepo repository.PostStatusRepository
 }
 
-func NewPostService(r repository.PostRepository) PostService {
-	return &postService{repo: r}
+func NewPostService(r repository.PostRepository, sr repository.PostStatusRepository) PostService {
+	return &postService{repo: r, statusRepo: sr}
 }
 
 func (s *postService) CreatePost(userID uuid.UUID, req *models.CreatePostRequest) (*models.Post, error) {
@@ -32,13 +33,16 @@ func (s *postService) CreatePost(userID uuid.UUID, req *models.CreatePostRequest
 		return nil, errSlug
 	}
 
+	status, _ := s.statusRepo.FindByValue(req.Status)
+
 	post := &models.Post{
-		ID:       uuid.New(),
-		AuthorID: userID,
-		Title:    req.Title,
-		Slug:     slug,
-		Content:  req.Content,
-		Status:   "draft", // Default status
+		ID:          uuid.New(),
+		AuthorID:    userID,
+		StatusID:    status.ID,
+		StatusValue: status.Value,
+		Title:       req.Title,
+		Slug:        slug,
+		Content:     req.Content,
 	}
 
 	err := s.repo.Create(post)

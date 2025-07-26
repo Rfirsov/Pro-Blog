@@ -26,12 +26,14 @@ import (
 	"github.com/Rfirsov/Pro-Blog/config"
 	"github.com/Rfirsov/Pro-Blog/database"
 	_ "github.com/Rfirsov/Pro-Blog/docs"
+	"github.com/Rfirsov/Pro-Blog/internal/seeders"
 	"github.com/Rfirsov/Pro-Blog/routes"
 )
 
 func main() {
 	config.LoadConfig()
 	database.InitDB()
+	seeders.SeedAll(database.DB)
 
 	router := routes.NewRouter()
 	if config.Cfg.Server.AppEnv == "development" {

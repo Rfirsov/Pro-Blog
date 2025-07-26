@@ -26,12 +26,19 @@ definitions:
       content:
         minLength: 10
         type: string
+      status:
+        enum:
+        - draft
+        - published
+        - archived
+        type: string
       title:
         maxLength: 255
         minLength: 3
         type: string
     required:
     - content
+    - status
     - title
     type: object
   models.CreatePostSuccessResponse:
@@ -105,6 +112,19 @@ definitions:
       post:
         $ref: '#/definitions/models.Post'
     type: object
+  models.GetPostStatusesFailureInternalServerErrorResponse:
+    properties:
+      error:
+        example: could not fetch post statuses
+        type: string
+    type: object
+  models.GetPostStatusesSuccessResponse:
+    properties:
+      statuses:
+        items:
+          $ref: '#/definitions/models.PostStatus'
+        type: array
+    type: object
   models.GetUserProfileFailureInternalServerErrorResponse:
     properties:
       error:
@@ -152,6 +172,18 @@ definitions:
       updated_at:
         type: string
     type: object
+  models.PostStatus:
+    properties:
+      id:
+        example: 1
+        type: integer
+      label:
+        example: Draft
+        type: string
+      value:
+        example: draft
+        type: string
+    type: object
   models.Role:
     enum:
     - user
@@ -188,10 +220,18 @@ definitions:
       content:
         minLength: 10
         type: string
+      status:
+        enum:
+        - draft
+        - published
+        - archived
+        type: string
       title:
         maxLength: 255
         minLength: 3
         type: string
+    required:
+    - status
     type: object
   models.UpdatePostSuccessResponse:
     properties:
@@ -223,14 +263,11 @@ definitions:
     properties:
       email:
         type: string
-      name:
-        type: string
       password:
         minLength: 6
         type: string
     required:
     - email
-    - name
     - password
     type: object
   models.UserLoginSuccessResponse:
@@ -536,6 +573,28 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update an existing blog post
+      tags:
+      - posts
+  /api/v1/posts/statuses:
+    get:
+      consumes:
+      - application/json
+      description: Returns all possible statuses a post may have (draft, published,
+        archived, etc.)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetPostStatusesSuccessResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.GetPostStatusesFailureInternalServerErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: List available post statuses
       tags:
       - posts
   /api/v1/profile:

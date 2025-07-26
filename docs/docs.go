@@ -187,6 +187,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/posts/statuses": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns all possible statuses a post may have (draft, published, archived, etc.)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "List available post statuses",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetPostStatusesSuccessResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetPostStatusesFailureInternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/posts/{id}": {
             "get": {
                 "description": "Retrieve a post by its UUID",
@@ -503,12 +537,21 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "content",
+                "status",
                 "title"
             ],
             "properties": {
                 "content": {
                     "type": "string",
                     "minLength": 10
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "draft",
+                        "published",
+                        "archived"
+                    ]
                 },
                 "title": {
                     "type": "string",
@@ -623,6 +666,26 @@ const docTemplate = `{
                 }
             }
         },
+        "models.GetPostStatusesFailureInternalServerErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "could not fetch post statuses"
+                }
+            }
+        },
+        "models.GetPostStatusesSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "statuses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PostStatus"
+                    }
+                }
+            }
+        },
         "models.GetUserProfileFailureInternalServerErrorResponse": {
             "type": "object",
             "properties": {
@@ -695,6 +758,23 @@ const docTemplate = `{
                 }
             }
         },
+        "models.PostStatus": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "label": {
+                    "type": "string",
+                    "example": "Draft"
+                },
+                "value": {
+                    "type": "string",
+                    "example": "draft"
+                }
+            }
+        },
         "models.Role": {
             "type": "string",
             "enum": [
@@ -741,10 +821,21 @@ const docTemplate = `{
         },
         "models.UpdatePostRequest": {
             "type": "object",
+            "required": [
+                "status"
+            ],
             "properties": {
                 "content": {
                     "type": "string",
                     "minLength": 10
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "draft",
+                        "published",
+                        "archived"
+                    ]
                 },
                 "title": {
                     "type": "string",
@@ -796,14 +887,10 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
-                "name",
                 "password"
             ],
             "properties": {
                 "email": {
-                    "type": "string"
-                },
-                "name": {
                     "type": "string"
                 },
                 "password": {

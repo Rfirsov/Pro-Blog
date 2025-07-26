@@ -113,6 +113,7 @@ func (h *postHandler) UpdatePost(c *gin.Context) {
 // @Router       /api/v1/posts [get]
 func (h *postHandler) GetAllPosts(c *gin.Context) {
 	posts, err := h.service.GetAllPosts()
+	
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": customErrors.ErrPostNotFound.Error(), "details": err.Error()})
 		return

@@ -23,7 +23,17 @@ func InitializePostService() handlers.PostHandler {
 	baseRepo := repository.NewBaseRepository(database.DB)
 
 	repo := repository.NewPostRepository(baseRepo)
-	service := service.NewPostService(repo)
+	statusRepo := repository.NewPostStatusRepository(baseRepo)
+	service := service.NewPostService(repo, statusRepo)
 	handler := handlers.NewPostHandler(service)
+	return handler
+}
+
+func InitializePostStatusService() handlers.PostStatusHandler {
+	baseRepo := repository.NewBaseRepository(database.DB)
+
+	repo := repository.NewPostStatusRepository(baseRepo)
+	service := service.NewPostStatusService(repo)
+	handler := handlers.NewPostStatusHandler(service)
 	return handler
 }
