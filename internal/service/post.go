@@ -70,6 +70,10 @@ func (s *postService) UpdatePost(id uuid.UUID, req *models.UpdatePostRequest) (*
 	post.Title = req.Title
 	post.Content = req.Content
 
+	status, _ := s.statusRepo.FindByValue(req.Status)
+	post.StatusID = status.ID
+	post.StatusValue = status.Value
+
 	if err := s.repo.Update(post); err != nil {
 		return nil, err
 	}
