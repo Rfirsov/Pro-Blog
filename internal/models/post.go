@@ -7,23 +7,24 @@ import (
 )
 
 type Post struct {
-	ID          uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
-	Title       string     `gorm:"type:varchar(255);not null" json:"title"`
-	Slug        string     `gorm:"uniqueIndex;not null" json:"slug"`
-	Content     string     `gorm:"type:text" json:"content"`
-	StatusID    uint       `gorm:"default:1" json:"-"`
-	Status      PostStatus `gorm:"foreignKey:StatusID" json:"-"`
-	StatusValue string     `gorm:"-" json:"status"`
-	AuthorID    uuid.UUID  `gorm:"type:uuid;not null" json:"author_id"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
+	ID        uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	AuthorID  uuid.UUID  `gorm:"type:uuid;not null" json:"author_id"`
+	Title     string     `gorm:"type:varchar(255);not null" json:"title"`
+	Slug      string     `gorm:"uniqueIndex;not null" json:"slug"`
+	Tags      []Tag      `gorm:"many2many:post_tags;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"tags"`
+	Content   string     `gorm:"type:text" json:"content"`
+	StatusID  uint       `gorm:"not null;default:1" json:"-"`
+	Status    PostStatus `gorm:"foreignKey:StatusID" json:"status"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 // Post creation structure
 type CreatePostRequest struct {
-	Title   string `json:"title" binding:"required,min=3,max=255"`
-	Content string `json:"content" binding:"required,min=10"`
-	Status  string `json:"status" binding:"required,oneof=draft published archived"`
+	Title       string   `json:"title" binding:"required,min=3,max=255"`
+	Content     string   `json:"content" binding:"required,min=10"`
+	StatusValue string   `json:"status" binding:"required,oneof=draft published archived"`
+	Tags        []string `json:"tags" binding:"unique,dive,required,max=5"`
 }
 
 type CreatePostSuccessResponse struct {
@@ -45,9 +46,10 @@ type CreatePostFailureInternalServerErrorResponse struct {
 
 // Post update structure
 type UpdatePostRequest struct {
-	Title   string `json:"title" binding:"min=3,max=255"`
-	Content string `json:"content" binding:"min=10"`
-	Status  string `json:"status" binding:"required,oneof=draft published archived"`
+	Title       string   `json:"title" binding:"min=3,max=255"`
+	Content     string   `json:"content" binding:"min=10"`
+	StatusValue string   `json:"status" binding:"required,oneof=draft published archived"`
+	Tags        []string `json:"tags" binding:"unique,dive,required,max=5"`
 }
 
 type UpdatePostSuccessResponse struct {
@@ -117,5 +119,5 @@ type GetPostStatusesSuccessResponse struct {
 }
 
 type GetPostStatusesFailureInternalServerErrorResponse struct {
-	Error   string `json:"error" example:"could not fetch post statuses"`
+	Error string `json:"error" example:"could not fetch post statuses"`
 }

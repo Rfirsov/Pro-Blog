@@ -27,36 +27,34 @@ func (r *postRepo) Create(post *models.Post) error {
 }
 
 func (r *postRepo) Update(updatedPost *models.Post) error {
-	err := r.DB.Model(updatedPost).Where("id = ?", updatedPost.ID).Updates(map[string]interface{}{
-		"title":     updatedPost.Title,
-		"author_id": updatedPost.AuthorID,
-		"status_id": updatedPost.StatusID,
-		"slug":      updatedPost.Slug,
-		"content":   updatedPost.Content,
-	}).Error
+	if err := r.DB.Model(&models.Post{}).
+		Where("id = ?", updatedPost.ID).
+		Updates(map[string]interface{}{
+			"title":     updatedPost.Title,
+			"author_id": updatedPost.AuthorID,
+			"status_id": updatedPost.Status.ID,
+			"slug":      updatedPost.Slug,
+			"content":   updatedPost.Content,
+		}).Error; err != nil {
+		return err
+	}
 
-	return err
+	return r.DB.Model(updatedPost).Association("Tags").Replace(updatedPost.Tags)
 }
 
 func (r *postRepo) FindByID(id uuid.UUID) (*models.Post, error) {
 	var post models.Post
-	if err := r.DB.Preload("Status").First(&post, "id = ?", id).Error; err != nil {
+	if err := r.DB.Preload("Status").Preload("Tags").First(&post, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
-
-	post.StatusValue = post.Status.Value
 
 	return &post, nil
 }
 
 func (r *postRepo) FindAll() ([]models.Post, error) {
 	var posts []models.Post
-	if err := r.DB.Preload("Status").Find(&posts).Error; err != nil {
+	if err := r.DB.Preload("Status").Preload("Tags").Find(&posts).Error; err != nil {
 		return nil, err
-	}
-
-	for i := range posts {
-		posts[i].StatusValue = posts[i].Status.Value
 	}
 
 	return posts, nil

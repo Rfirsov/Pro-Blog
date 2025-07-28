@@ -21,10 +21,11 @@ type PostService interface {
 type postService struct {
 	repo       repository.PostRepository
 	statusRepo repository.PostStatusRepository
+	tagRepo    repository.TagRepository
 }
 
-func NewPostService(r repository.PostRepository, sr repository.PostStatusRepository) PostService {
-	return &postService{repo: r, statusRepo: sr}
+func NewPostService(r repository.PostRepository, sr repository.PostStatusRepository, tr repository.TagRepository) PostService {
+	return &postService{repo: r, statusRepo: sr, tagRepo: tr}
 }
 
 func (s *postService) CreatePost(userID uuid.UUID, req *models.CreatePostRequest) (*models.Post, error) {
@@ -35,11 +36,22 @@ func (s *postService) CreatePost(userID uuid.UUID, req *models.CreatePostRequest
 
 	status, _ := s.getPostStatus(req.StatusValue)
 
+	tags := make([]models.Tag, 0, len(req.Tags))
+	for _, name := range req.Tags {
+		tag, err := s.tagRepo.FirstOrCreateTagByName(name)
+		if err != nil {
+			return nil, err
+		}
+		tags = append(tags, *tag)
+	}
+
+
 	post := &models.Post{
 		ID:       uuid.New(),
 		AuthorID: userID,
 		StatusID: status.ID,
 		Status:   status,
+		Tags:     tags,
 		Title:    req.Title,
 		Slug:     slug,
 		Content:  req.Content,
@@ -73,6 +85,19 @@ func (s *postService) UpdatePost(id uuid.UUID, req *models.UpdatePostRequest) (*
 	status, _ := s.getPostStatus(req.StatusValue)
 	post.StatusID = status.ID
 	post.Status = status
+
+	tags := make([]models.Tag, 0, len(req.Tags))
+	for _, name := range req.Tags {
+		tag, err := s.tagRepo.FirstOrCreateTagByName(name)
+		if err != nil {
+			return nil, err
+		}
+		tags = append(tags, *tag)
+	}
+
+	fmt.Println("Tags found or created:", tags)
+
+	post.Tags = tags
 
 	if err := s.repo.Update(post); err != nil {
 		return nil, err

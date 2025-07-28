@@ -14,5 +14,9 @@ func SeedAll(db *gorm.DB) {
 		log.Fatalf("❌ Failed to seed post statuses: %v", err)
 	}
 
+	if err := SeedPostTags(db); err != nil {
+		log.Fatalf("❌ Failed to seed tags: %v", err)
+	}
+
 	log.Println("✅ Database seeded successfully.")
 }

@@ -24,7 +24,8 @@ func InitializePostService() handlers.PostHandler {
 
 	repo := repository.NewPostRepository(baseRepo)
 	statusRepo := repository.NewPostStatusRepository(baseRepo)
-	service := service.NewPostService(repo, statusRepo)
+	tagRepo := repository.NewTagRepository(baseRepo)
+	service := service.NewPostService(repo, statusRepo, tagRepo)
 	handler := handlers.NewPostHandler(service)
 	return handler
 }

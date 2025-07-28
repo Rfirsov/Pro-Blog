@@ -538,6 +538,7 @@ const docTemplate = `{
             "required": [
                 "content",
                 "status",
+                "tags",
                 "title"
             ],
             "properties": {
@@ -552,6 +553,13 @@ const docTemplate = `{
                         "published",
                         "archived"
                     ]
+                },
+                "tags": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "title": {
                     "type": "string",
@@ -748,7 +756,13 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
+                    "$ref": "#/definitions/models.PostStatus"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Tag"
+                    }
                 },
                 "title": {
                     "type": "string"
@@ -788,6 +802,17 @@ const docTemplate = `{
                 "RoleAdmin"
             ]
         },
+        "models.Tag": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "models.UpdatePostFailureBadRequestResponse": {
             "type": "object",
             "properties": {
@@ -822,7 +847,8 @@ const docTemplate = `{
         "models.UpdatePostRequest": {
             "type": "object",
             "required": [
-                "status"
+                "status",
+                "tags"
             ],
             "properties": {
                 "content": {
@@ -836,6 +862,13 @@ const docTemplate = `{
                         "published",
                         "archived"
                     ]
+                },
+                "tags": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "title": {
                     "type": "string",

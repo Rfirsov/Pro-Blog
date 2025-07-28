@@ -32,6 +32,11 @@ definitions:
         - published
         - archived
         type: string
+      tags:
+        items:
+          type: string
+        type: array
+        uniqueItems: true
       title:
         maxLength: 255
         minLength: 3
@@ -39,6 +44,7 @@ definitions:
     required:
     - content
     - status
+    - tags
     - title
     type: object
   models.CreatePostSuccessResponse:
@@ -166,7 +172,11 @@ definitions:
       slug:
         type: string
       status:
-        type: string
+        $ref: '#/definitions/models.PostStatus'
+      tags:
+        items:
+          $ref: '#/definitions/models.Tag'
+        type: array
       title:
         type: string
       updated_at:
@@ -194,6 +204,13 @@ definitions:
     - RoleUser
     - RoleAuthor
     - RoleAdmin
+  models.Tag:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   models.UpdatePostFailureBadRequestResponse:
     properties:
       error:
@@ -226,12 +243,18 @@ definitions:
         - published
         - archived
         type: string
+      tags:
+        items:
+          type: string
+        type: array
+        uniqueItems: true
       title:
         maxLength: 255
         minLength: 3
         type: string
     required:
     - status
+    - tags
     type: object
   models.UpdatePostSuccessResponse:
     properties:

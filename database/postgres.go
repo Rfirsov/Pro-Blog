@@ -38,8 +38,9 @@ func InitDB() {
 
 	errAutoMigrate := DB.AutoMigrate(
 		&models.User{}, // Add more models here
-		&models.PostStatus{},
 		&models.Post{},
+		&models.PostStatus{},
+		&models.Tag{},
 	)
 	if errAutoMigrate != nil {
 		log.Fatal("Failed to migrate database schema:", errAutoMigrate)

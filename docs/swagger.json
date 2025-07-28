@@ -532,6 +532,7 @@
             "required": [
                 "content",
                 "status",
+                "tags",
                 "title"
             ],
             "properties": {
@@ -546,6 +547,13 @@
                         "published",
                         "archived"
                     ]
+                },
+                "tags": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "title": {
                     "type": "string",
@@ -742,7 +750,13 @@
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
+                    "$ref": "#/definitions/models.PostStatus"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Tag"
+                    }
                 },
                 "title": {
                     "type": "string"
@@ -782,6 +796,17 @@
                 "RoleAdmin"
             ]
         },
+        "models.Tag": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "models.UpdatePostFailureBadRequestResponse": {
             "type": "object",
             "properties": {
@@ -816,7 +841,8 @@
         "models.UpdatePostRequest": {
             "type": "object",
             "required": [
-                "status"
+                "status",
+                "tags"
             ],
             "properties": {
                 "content": {
@@ -830,6 +856,13 @@
                         "published",
                         "archived"
                     ]
+                },
+                "tags": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "title": {
                     "type": "string",
