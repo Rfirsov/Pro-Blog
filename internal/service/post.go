@@ -33,16 +33,16 @@ func (s *postService) CreatePost(userID uuid.UUID, req *models.CreatePostRequest
 		return nil, errSlug
 	}
 
-	status, _ := s.statusRepo.FindByValue(req.Status)
+	status, _ := s.getPostStatus(req.StatusValue)
 
 	post := &models.Post{
-		ID:          uuid.New(),
-		AuthorID:    userID,
-		StatusID:    status.ID,
-		StatusValue: status.Value,
-		Title:       req.Title,
-		Slug:        slug,
-		Content:     req.Content,
+		ID:       uuid.New(),
+		AuthorID: userID,
+		StatusID: status.ID,
+		Status:   status,
+		Title:    req.Title,
+		Slug:     slug,
+		Content:  req.Content,
 	}
 
 	err := s.repo.Create(post)
@@ -70,9 +70,9 @@ func (s *postService) UpdatePost(id uuid.UUID, req *models.UpdatePostRequest) (*
 	post.Title = req.Title
 	post.Content = req.Content
 
-	status, _ := s.statusRepo.FindByValue(req.Status)
+	status, _ := s.getPostStatus(req.StatusValue)
 	post.StatusID = status.ID
-	post.StatusValue = status.Value
+	post.Status = status
 
 	if err := s.repo.Update(post); err != nil {
 		return nil, err
@@ -121,4 +121,13 @@ func (s *postService) generateUniqueSlug(title string) (string, error) {
 	}
 
 	return slugCandidate, nil
+}
+
+func (s *postService) getPostStatus(statusValue string) (models.PostStatus, error) {
+	status, errStatus := s.statusRepo.FindByValue(statusValue)
+	if errStatus != nil {
+		return models.PostStatus{}, fmt.Errorf("invalid status value: %w", errStatus)
+	}
+
+	return status, nil
 }
